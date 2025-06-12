@@ -16,4 +16,5 @@ class TelegramBot(Base):
     
     # Отношения
     user = relationship("User", back_populates="bots")
+    broadcasts = relationship("Broadcast", back_populates="bot", cascade="all, delete-orphan")
     subscribers = relationship("Subscriber", back_populates="bot", cascade="all, delete-orphan")
