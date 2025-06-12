@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, BigInteger
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, BigInteger, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -21,9 +21,7 @@ class Subscriber(Base):
     # Отношения
     bot = relationship("TelegramBot", back_populates="subscribers")
     
-    # Уникальный индекс для пары bot_id + telegram_user_id
+    # Уникальное ограничение
     __table_args__ = (
-        {"postgresql_indexes": [
-            {"unique": True, "columns": ["bot_id", "telegram_user_id"]}
-        ]},
+        UniqueConstraint('bot_id', 'telegram_user_id', name='_bot_user_uc'),
     )
