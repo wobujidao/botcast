@@ -5,7 +5,7 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.database import async_session_maker
+from app.core.database import AsyncSessionLocal as async_session_maker
 from app.models.broadcast import Broadcast, BroadcastStatus
 from app.models.broadcast_message import BroadcastMessage
 from app.models.subscriber import Subscriber
