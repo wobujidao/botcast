@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     
     # Приложение
     APP_NAME: str = Field(default="BotCast")
-    DEBUG: bool = Field(default=True)
+    DEBUG: bool = Field(default=False)
     HOST: str = Field(default="0.0.0.0")
     PORT: int = Field(default=8000)
     
