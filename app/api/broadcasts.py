@@ -11,7 +11,8 @@ from app.models.subscriber import Subscriber
 from app.models.broadcast_message import BroadcastMessage
 from app.schemas.broadcast import BroadcastCreate, BroadcastUpdate, BroadcastResponse, BroadcastStats
 from app.api.deps import get_current_user
-from app.workers.broadcast import send_broadcast_task
+from app.workers.broadcast import send_broadcast
+#from app.workers.broadcast import send_broadcast_task
 
 router = APIRouter(prefix="/broadcasts", tags=["broadcasts"])
 
