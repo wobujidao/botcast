@@ -151,7 +151,6 @@ async def start_bot(
     db: AsyncSession = Depends(get_db)
 ):
     """Запустить бота"""
-    # Проверяем, что бот принадлежит пользователю
     result = await db.execute(
         select(TelegramBot).where(
             TelegramBot.id == bot_id,
@@ -166,7 +165,7 @@ async def start_bot(
     bot.is_active = True
     await db.commit()
 
-    return {"status": "started"}
+    return {"message": "Bot started", "is_running": True}
 
 @router.post("/{bot_id}/stop")
 async def stop_bot(
@@ -175,7 +174,6 @@ async def stop_bot(
     db: AsyncSession = Depends(get_db)
 ):
     """Остановить бота"""
-    # Проверяем, что бот принадлежит пользователю
     result = await db.execute(
         select(TelegramBot).where(
             TelegramBot.id == bot_id,
@@ -190,7 +188,7 @@ async def stop_bot(
     bot.is_active = False
     await db.commit()
 
-    return {"status": "stopped"}
+    return {"message": "Bot stopped", "is_running": False}
 
 @router.get("/{bot_id}/status")
 async def get_bot_status(
@@ -206,13 +204,13 @@ async def get_bot_status(
         )
     )
     bot = result.scalar_one_or_none()
-    
+
     if not bot:
         raise HTTPException(status_code=404, detail="Bot not found")
-    
+
     return {
-        "id": bot.id,
-        "is_active": bot.is_active,
+        "bot_id": bot.id,
+        "is_running": bot.is_active,
         "bot_username": bot.bot_username,
         "bot_name": bot.bot_name
     }

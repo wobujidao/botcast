@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 from datetime import datetime
 from typing import Optional
 
@@ -18,6 +18,21 @@ class TelegramBotResponse(BaseModel):
     bot_name: Optional[str]
     is_active: bool
     created_at: datetime
+    
+    @computed_field
+    @property
+    def is_running(self) -> bool:
+        return self.is_active
+    
+    @computed_field
+    @property 
+    def name(self) -> str:
+        return self.bot_name or self.bot_username or f"Bot {self.id}"
+    
+    @computed_field
+    @property
+    def description(self) -> str:
+        return f"@{self.bot_username}" if self.bot_username else f"Bot ID: {self.id}"
     
     class Config:
         from_attributes = True
