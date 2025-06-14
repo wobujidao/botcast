@@ -1,104 +1,78 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import useBotStore from '../store/botStore';
 
-export default function CreateBotForm({ onClose, onSuccess }) {
+export default function CreateBotForm({ onClose }) {
+  const [formData, setFormData] = useState({
+    bot_name: '',
+    bot_token: ''
+  });
   const { createBot } = useBotStore();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const newBot = await createBot(data);
-      onSuccess(newBot);
+      // Отправляем только те поля, которые ожидает API
+      const botData = {
+        bot_token: formData.bot_token,
+        bot_name: formData.bot_name || null
+      };
+      
+      await createBot(botData);
       onClose();
     } catch (error) {
-      console.error('Ошибка создания бота:', error);
-    } finally {
-      setIsSubmitting(false);
+      console.error('Ошибка создания бота:', error.response?.data || error);
+      alert(`Ошибка: ${error.response?.data?.detail || 'Не удалось создать бота'}`);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
-          Создать нового бота
-        </h2>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Название бота
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Создать нового бота</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Название бота (необязательно)
             </label>
             <input
-              {...register('name', { required: 'Название обязательно' })}
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              placeholder="Мой крутой бот"
-            />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Описание
-            </label>
-            <textarea
-              {...register('description')}
-              rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              placeholder="Описание функций бота..."
+              value={formData.bot_name}
+              onChange={(e) => setFormData({ ...formData, bot_name: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Мой бот"
             />
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              API Token
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Telegram токен *
             </label>
             <input
-              {...register('api_token', { required: 'API Token обязателен' })}
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              placeholder="Вставьте токен от @BotFather"
+              required
+              value={formData.bot_token}
+              onChange={(e) => setFormData({ ...formData, bot_token: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="123456:ABC-DEF..."
             />
-            {errors.api_token && (
-              <p className="mt-1 text-sm text-red-600">{errors.api_token.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Webhook URL (опционально)
-            </label>
-            <input
-              {...register('webhook_url')}
-              type="url"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              placeholder="https://example.com/webhook"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Оставьте пустым для использования polling
+            <p className="mt-1 text-sm text-gray-500">
+              Получите токен у @BotFather в Telegram
             </p>
           </div>
-
-          <div className="mt-6 flex justify-end space-x-3">
+          
+          <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
             >
               Отмена
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              {isSubmitting ? 'Создание...' : 'Создать'}
+              Создать
             </button>
           </div>
         </form>
